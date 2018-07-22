@@ -6,6 +6,15 @@ var interval_time = 1
 var it = 5;
 var interval = -1;
 
+/**
+ * Create public and private keys of client and store them in file
+ */
+const rsaWrapper = require('./crypto/rsa-wrapper');
+rsaWrapper.generateIfRequired('client');
+
+const serverPublicKey = rsaWrapper.loadKey('./crypto', 'server', 'public');
+console.log('Sercver Public *******************', serverPublicKey);
+
 
 function sentData()
 {
@@ -15,8 +24,11 @@ function sentData()
             humidity: (Math.random() * 100).toFixed(2),
             userid: sen[Math.floor((Math.random() * 3).toFixed(2))]
         }
-        console.log('sent');      
-        client.publish('question2', JSON.stringify(data))
+
+        const encrypted = rsaWrapper.encrypt(serverPublicKey,JSON.stringify(data));
+        console.log('\nDATA - ', encrypted);
+
+        client.publish('question2', encrypted);
         it = interval_time
 }
 

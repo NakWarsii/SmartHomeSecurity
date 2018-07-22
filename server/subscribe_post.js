@@ -8,13 +8,20 @@ var client = mqtt.connect('mqtt://localhost:1883');
 //var db_sensor = require('../mongoose/database');
 let message;
 
+const rsaWrapper = require('./crypto/rsa-wrapper');
+let serverPrivateKey;
+
 var connectCallback = function () {
     console.log('mqtt broker connected')
-    client.subscribe('question2')
+    client.subscribe('question2');
+    serverPrivateKey = rsaWrapper.loadKey('./crypto', 'server', 'private');
 }
 
-client.on('message', function (topic, msg) {   
-    message = JSON.parse(msg);   
+client.on('message', function (topic, msg) {
+    const decrypted = rsaWrapper.decrypt(serverPrivateKey, msg.toString('utf8'));
+    console.log('DECRYPTED Message - ', decrypted);
+
+    message = JSON.parse(decrypted);   
     let DATA = {
         sensor: message.sensor,
         temperature: message.temperature,
