@@ -10,6 +10,11 @@ var routDevices = require('./routes/devices');
 const config = require("./config/database")//requiring database folder
 var subscrib = require('./subscribe_post');
 
+/**
+ * Create public and private keys of client and store them in file
+ */
+const rsaWrapper = require('./crypto/rsa-wrapper');
+rsaWrapper.generateIfRequired('server');
 
 var app = express();
 
